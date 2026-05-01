@@ -13,9 +13,8 @@ pipeline {
         }
         stage('run docker container'){
             steps {
-                sh 'docker stop my-container || true'
-                sh 'docker run my-container || true'
-                sh 'docker run -d -p 80:80 --name my-container my-website'
+                sh 'sudo docker rm -f my-container || true'
+                sh 'sudo docker run -d -p 80:80 --name my-container my-website'
             }
 
         }
