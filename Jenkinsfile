@@ -1,4 +1,4 @@
-pipeline{
+pipeline {
     agent any
     stages {
         stage('clonecode') {
@@ -15,7 +15,7 @@ pipeline{
             steps {
                 sh 'docker stop my-container || true'
                 sh 'docker run my-container || true'
-                sh 'docker run -d -p 80:80 --name my-container my-website'
+                sh 'docker run -d -p 80:80 --name my-contaibiner my-website'
             }
         }
     }
