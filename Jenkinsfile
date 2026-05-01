@@ -28,7 +28,7 @@ pipeline {
                     usernameVariable:'Docker_USER')])
 
                     {
-                        
+                    
 
                         sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
 
