@@ -15,7 +15,7 @@ pipeline {
             steps {
                 sh 'docker rm -f my-container || true'
             
-                sh 'docker run -d -p 80:80 --name my-container my-website'
+                sh 'docker run -d -p 8081:80 --name my-container my-website'
             }
 
         }
