@@ -19,6 +19,29 @@ pipeline {
             }
 
         }
+
+        stage('push to docker hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds',
+                    passwordVariable: 'DOCKER_PASS',
+                    usernameVariable:'Docker_USER')])
+
+                    {
+                        
+
+                        sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+
+                        sh "docker tag my-website ${DOCKER_USER}/my-website:latest"
+
+                        sh "docker push ${DOCKER_USER}/my-website:latest"
+                    }
+                } 
+                
+                sh 'curl -f http://localhost:8081 || exit 1'
+            }
+        }
+
         stage('cleanup') {
             steps {
                 sh 'docker image prune -f'
