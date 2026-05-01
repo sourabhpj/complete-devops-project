@@ -1,69 +1,49 @@
 pipeline {
-agent any
+    agent any
 
-```
-stages {
-
-    stage('Clone Code') {
-        steps {
-            checkout scm
+    stages {
+        stage('checkout') {
+            steps {
+                // तुमच्या रिपोचे अचूक नाव इथे दुरुस्त केले आहे
+                git branch: 'master', url: 'https://github.com/sourabhpj/complete-devops-project.git'
+            }
         }
-    }
 
-    stage('Build Docker Image') {
-        steps {
-            sh 'docker build --no-cache -t my-website .'
+        stage('build docker image') {
+            steps {
+                sh 'docker build --no-cache -t my-website .'
+            }
         }
-    }
 
-    stage('Run Docker Container') {
-        steps {
-            sh 'docker rm -f my-container || true'
-            sh 'docker run -d -p 8081:80 --name my-container my-website'
-        }
-    }
-
-    stage('Push to Docker Hub') {
-        steps {
-            script {
-                withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-
-                    sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker tag my-website $DOCKER_USER/my-website:latest
-                    docker push $DOCKER_USER/my-website:latest
-                    '''
+        stage('push to docker hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                        sh "docker tag my-website ${DOCKER_USER}/my-website:latest"
+                        sh "docker push ${DOCKER_USER}/my-website:latest"
+                    }
                 }
             }
         }
-    }
 
-    stage('Health Check') {
-        steps {
-            sh 'curl -f http://localhost:8081 || exit 1'
+        stage('deploy to kubernetes') {
+            steps {
+                script {
+                    // तुमच्या फोल्डरच्या नावानुसार (my-k8s-project)
+                    dir('my-k8s-project') {
+                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f service.yaml'
+                        sh 'kubectl rollout restart deployment my-website-deploy'
+                    }
+                }
+            }
         }
-    }
 
-    stage('Deploy to Kubernetes') {
-        steps {
-            dir('my-k8s-project') {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-                sh 'kubectl rollout restart deployment my-website-deploy'
+        stage('cleanup') {
+            steps {
+                sh 'docker image prune -f'
             }
         }
     }
-
-    stage('Cleanup') {
-        steps {
-            sh 'docker image prune -f'
-        }
-    }
-}
-```
-
 }
