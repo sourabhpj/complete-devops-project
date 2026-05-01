@@ -17,6 +17,12 @@ pipeline {
                 sh 'docker run my-container || true'
                 sh 'docker run -d -p 80:80 --name my-contaibiner my-website'
             }
+
+        }
+        stage('cleanup') {
+            steps {
+                sh 'docker image prune -f'
+            }
         }
     }
 }
