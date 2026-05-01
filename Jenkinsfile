@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('clonecode') {
             steps {
-                git 'https://github.com/sourabhpj/complete-devops-project.git'
+                checkout scm
             }
         }
         stage('build docker image') {
