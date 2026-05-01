@@ -41,7 +41,16 @@ pipeline {
                 sh 'curl -f http://localhost:8081 || exit 1'
             }
         }
-
+        stage('deploy to kubernetes') {
+            steps {
+                script {
+                    sh 'kubectl apply -f my-k8s-project/deployment.yaml'
+                    sh 'kubectl apply -f my-k8s-project/service.yaml'
+                    sh 'kubectl rollout restart deployment my-website-deploy'
+                }
+            }
+        }
+       
         stage('cleanup') {
             steps {
                 sh 'docker image prune -f'
